@@ -18,7 +18,7 @@ class Application:
     def create_widgets(self):
         self.root = Tk()
         self.root.title('one-FROM-two')
-        self.root.geometry('375x367+50+50')
+        self.root.geometry('375x400+50+50')
         self.root.resizable(False, False)
         self.root.configure(background='white')
         self.fnt1 = ('Consolas','18')
@@ -43,7 +43,7 @@ class Application:
         self.option_but2.place(x=198, y=1, width=155)
 
     def create_frame2(self):
-        self.frame2 = Frame(self.root, bg='#ffffe0', bd=5, height=247, width=365)
+        self.frame2 = Frame(self.root, bg='#ffffe0', bd=5, height=280, width=365)
         self.frame2.place(x=5, y=115)
         # labels
         self.quest_num_lab = Label(self.frame2, text="Number of the question: 0", font=self.fnt2, bg='#ffffe0')
@@ -64,25 +64,43 @@ class Application:
         # buttons
         self.start_but = Button(self.frame2, text='START', font=self.fnt1, command=self.start)
         self.start_but['state'] = DISABLED
-        self.start_but.place(x=125, y=154, width=229)
+        self.start_but.place(x=125, y=187, width=229)
+        self.clear_but = Button(self.frame2, text="Clear", font=self.fnt2, command=self.clear_text_field)
+        self.clear_but.place(x=1, y=243, width=115)
         self.add_from_text_but = Button(self.frame2, text="Add", font=self.fnt2, command=self.add_from_text)
-        self.add_from_text_but.place(x=125, y=210, width=96)
+        self.add_from_text_but.place(x=125, y=243, width=96)
         self.add_from_file_but = Button(self.frame2, text="Add from file", font=self.fnt2, command=self.add_from_file)   
-        self.add_from_file_but.place(x=229, y=210, width=125)
+        self.add_from_file_but.place(x=229, y=243, width=125)
 
-    def add_from_text(self):
-        self.option_but1['state'] = DISABLED
-        self.option_but1['text'] = 'Option 1'
-        self.option_but2['state'] = DISABLED
-        self.option_but2['text'] = 'Option 2'
-        self.start_but['state'] = NORMAL
+    def stop_answer_question(self):
         self.timer = False
         self.list_objects = []
-        list_objects_view = []
-        lines_text = self.options_txt.get('1.0', END).strip(' \n').split('\n')
-        if lines_text:
+        self.question_number = 0
+        self.border_for_txt['bg'] = 'red'
+        self.quest_num_lab['text'] = "Number of the question: 0"
+        self.count_elem_lab['text'] = "Count of elements: 0"
+        self.count_posb_quest_lab['text'] = "Count of possible questions: 0"
+        self.mess_lab['text'] = "Add subjects to the text field with keybord or from the file!"
+        self.option_but1['state'] = DISABLED
+        self.option_but1['text'] = 'one'
+        self.option_but2['state'] = DISABLED
+        self.option_but2['text'] = 'two'
+
+    def clear_text_field(self):
+        self.stop_answer_question()
+        
+    
+    def add_from_text(self):
+        self.stop_answer_question()
+        lines_text = [el.strip() for el in self.options_txt.get('1.0', END).strip(' \n').split('\n') if el != '']
+        if not lines_text:
+            print('File is empty...')
+        elif len(lines_text) < 2:
+            print("Count of the elements less then 2...")
+        else:
+            list_objects_view = []
             for subj in lines_text:
-                tmp = subj.strip().lower().title()
+                tmp = subj.lower().title()
                 self.list_objects.append( [tmp, 0] )
                 list_objects_view.append( tmp )
             random.shuffle( self.list_objects )
@@ -90,32 +108,29 @@ class Application:
             list_objects_view = '\n'.join(list_objects_view)
             self.options_txt.delete('1.0', END) 
             self.options_txt.insert('1.0', list_objects_view)
-            print('List download from text field is done:', self.list_objects, sep='\n')
-        else:
-            print('Text field is empty...')
+            self.border_for_txt['bg'] = 'blue'
+            self.count_elem_lab['text'] = self.count_elem_lab['text'][:19] + str(len(self.list_objects))
+            self.count_posb_quest_lab['text'] = self.count_posb_quest_lab['text'][:29] + \
+                                                str(len(self.list_objects)*(len(self.list_objects)-1)//2)
+            self.mess_lab['text'] = "List download from file is done! Now press the START"
+            self.start_but['state'] = NORMAL
+            print(self.list_objects)
 
     def add_from_file(self):
-        self.option_but1['state'] = DISABLED
-        self.option_but1['text'] = 'Option 1'
-        self.option_but2['state'] = DISABLED
-        self.option_but2['text'] = 'Option 2'
-        self.start_but['state'] = NORMAL
-        self.timer = False
-        self.list_objects = []
+        self.stop_answer_question()
         fn = filedialog.askopenfilename(filetypes = [('*.txt files', '*.txt')])
         if fn:
             fin = open(fn, 'r')
-            lines_file = fin.read().strip(' \n').split('\n')
-            print(1,lines_file)
+            lines_file = [el.strip() for el in fin.read().strip(' \n').split('\n') if el != '']
             fin.close()
-            if lines_file == ['']:
+            if not lines_file:
                print('File is empty...')
             elif len(lines_file) < 2:
                 print("Count of the elements less then 2...")
             else:
                 list_objects_view = []
                 for subj in lines_file:
-                    tmp = subj.strip().lower().title()
+                    tmp = subj.lower().title()
                     self.list_objects.append( [tmp, 0] )
                     list_objects_view.append( tmp )
                 random.shuffle( self.list_objects )
@@ -123,10 +138,14 @@ class Application:
                 list_objects_view = '\n'.join(list_objects_view)
                 self.options_txt.delete('1.0', END) 
                 self.options_txt.insert('1.0', list_objects_view)
+                self.border_for_txt['bg'] = 'blue'
                 self.count_elem_lab['text'] = self.count_elem_lab['text'][:19] + str(len(self.list_objects))
                 self.count_posb_quest_lab['text'] = self.count_posb_quest_lab['text'][:29] + \
                                            str(len(self.list_objects)*(len(self.list_objects)-1)//2)
-                print('List download from file is done:', self.list_objects, sep='\n')
+                self.mess_lab['text'] = "List download from file is done! Now press the START"
+                self.start_but['state'] = NORMAL
+                print(self.list_objects)
+
 
     def update_time(self):
         if self.timer:
@@ -148,7 +167,8 @@ class Application:
             self.option_but1['state'] = NORMAL
             self.option_but2['state'] = NORMAL
             self.start_but['state'] = DISABLED
-
+            self.mess_lab['text'] = "Answer the questions below"
+            
             self.start_time = int(time.time()*10)
             self.timer = True
             self.update_time()
@@ -191,13 +211,17 @@ class Application:
             print(self.list_objects[winner], self.list_objects[loser])
             while self.on_level_count() < 2:
                 if self.jump >= len(self.list_objects) * 2 - 1:
-                    print('Sorting is done!')
+                    self.mess_lab['text'] = "Sorting is done!"
+                    self.border_for_txt['bg'] = 'green'
+                    self.timer = False
                     self.option_but1['state'] = DISABLED
-                    self.option_but1['text'] = 'Option 1'
+                    self.option_but1['text'] = 'one'
                     self.option_but2['state'] = DISABLED
-                    self.option_but2['text'] = 'Option 2'
+                    self.option_but2['text'] = 'two'
                     self.list_objects.sort(key = lambda x: x[1], reverse=True)
-                    print(''.join([str(i+1)+'. '+str(el[0])+'\n' for i, el in enumerate(self.list_objects)]))
+                    self.options_txt.delete('1.0', END) 
+                    self.options_txt.insert('1.0', ''.join([str(i+1)+'. '+str(el[0])+'\n'
+                                                            for i, el in enumerate(self.list_objects)]))
                     break
                 elif self.direction:
                     if self.level < max(self.list_objects, key = lambda x: x[1])[1]:
