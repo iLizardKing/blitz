@@ -1,3 +1,5 @@
+# ([14, 39], [13, 36], [12.32], [11, 27], [10, 21], [9, 19], [8, 15], [7, 12], [6, 9], [5, 6], [4, 4], [3, 1], [2, 1])
+
 import random
 import time
 from tkinter import *
@@ -88,7 +90,16 @@ class Application:
 
     def clear_text_field(self):
         self.stop_answer_question()
-        
+        self.options_txt.delete('1.0', END)
+        self.start_but['state'] = DISABLED
+
+    def print_list_in_process(self):
+        self.options_txt.delete('1.0', END)
+        lst = []
+        for title, level in sorted(self.list_objects, key=lambda x: x[1]):
+            st = str(level) + ' ' + title
+            lst.append(st)
+        self.options_txt.insert('1.0', '\n'.join(lst))
     
     def add_from_text(self):
         self.stop_answer_question()
@@ -168,6 +179,7 @@ class Application:
             self.option_but2['state'] = NORMAL
             self.start_but['state'] = DISABLED
             self.mess_lab['text'] = "Answer the questions below"
+            self.print_list_in_process()
             
             self.start_time = int(time.time()*10)
             self.timer = True
@@ -208,7 +220,6 @@ class Application:
             self.question_number += 1
             self.list_objects[winner][1] += 1
             self.list_objects[loser][1] -= 1
-            print(self.list_objects[winner], self.list_objects[loser])
             while self.on_level_count() < 2:
                 if self.jump >= len(self.list_objects) * 2 - 1:
                     self.mess_lab['text'] = "Sorting is done!"
@@ -244,16 +255,16 @@ class Application:
         else:
             self.question_number += 1
             self.find_next_pair()
-            print(self.temp_question)
                 
     def choose1(self):
         self.human_sort(self.temp_question[0], self.temp_question[1])
         self.quest_num_lab['text'] = self.quest_num_lab['text'][:24] + str(self.question_number)
+        if self.timer: self.print_list_in_process()
 
     def choose2(self):
         self.human_sort(self.temp_question[1], self.temp_question[0])
         self.quest_num_lab['text'] = self.quest_num_lab['text'][:24] + str(self.question_number)
-
+        if self.timer: self.print_list_in_process()
 
 if __name__ == '__main__':
     app = Application()
