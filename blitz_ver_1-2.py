@@ -10,6 +10,7 @@ class Application:
         self.list_objects = []
         self.timer = False
         self.start_time = 0
+        self.time_passed = 0
         self.level = 0
         self.direction = True
         self.jump = 0
@@ -76,6 +77,9 @@ class Application:
 
     def stop_answer_question(self):
         self.timer = False
+        self.start_time = 0
+        self.time_passed = 0
+        self.time_lab['text'] = "Time: 00:00:00.0"
         self.list_objects = []
         self.question_number = 0
         self.border_for_txt['bg'] = 'red'
@@ -92,14 +96,6 @@ class Application:
         self.stop_answer_question()
         self.options_txt.delete('1.0', END)
         self.start_but['state'] = DISABLED
-
-    def print_list_in_process(self):
-        self.options_txt.delete('1.0', END)
-        lst = []
-        for title, level in sorted(self.list_objects, key=lambda x: x[1]):
-            st = str(level) + ' ' + title
-            lst.append(st)
-        self.options_txt.insert('1.0', '\n'.join(lst))
     
     def add_from_text(self):
         self.stop_answer_question()
@@ -157,21 +153,17 @@ class Application:
                 self.start_but['state'] = NORMAL
                 print(self.list_objects)
 
-
     def update_time(self):
+        def time_str(t):
+            milisec = str(t % 10)
+            seconds = str(t // 10 % 60).zfill(2)
+            minutes = str(t // 600 % 60).zfill(2)
+            hours = str(t // 36000).zfill(2)
+            return '{0}:{1}:{2}.{3}'.format(hours, minutes, seconds, milisec)
         if self.timer:
-            time_passed = int(time.time()*10) - self.start_time
-            milisec = str(time_passed % 10)
-            time_passed //= 10
-            seconds = str(time_passed % 60).zfill(2)
-            time_passed //= 60
-            minutes = str(time_passed % 60).zfill(2)
-            hours = str(time_passed // 60).zfill(2)
-            time_passed_str = '{0}:{1}:{2}.{3}'.format(hours, minutes, seconds, milisec)
-            self.time_lab['text'] = self.time_lab['text'][:6] + time_passed_str
+            self.time_passed = int(time.time()*10) - self.start_time
+            self.time_lab['text'] = self.time_lab['text'][:6] + time_str(self.time_passed)
             self.root.after(100, self.update_time)
-        else:
-            self.time_lab['text'] = 'Time: 00:00:00.0'
 
     def start(self):
         if len(self.list_objects) > 1:
@@ -255,7 +247,15 @@ class Application:
         else:
             self.question_number += 1
             self.find_next_pair()
-                
+
+    def print_list_in_process(self):
+        self.options_txt.delete('1.0', END)
+        lst = []
+        for title, level in self.list_objects:
+            st = '{0:2d} {1}'.format(level, title)
+            lst.append(st)
+        self.options_txt.insert('1.0', '\n'.join(lst))
+
     def choose1(self):
         self.human_sort(self.temp_question[0], self.temp_question[1])
         self.quest_num_lab['text'] = self.quest_num_lab['text'][:24] + str(self.question_number)
