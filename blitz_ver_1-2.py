@@ -127,11 +127,6 @@ class Application:
         self.option_but2['state'] = DISABLED
         self.option_but2['text'] = 'two'
 
-    def clear_text_field(self):
-        self.stop_answer_question()
-        self.options_txt.delete('1.0', END)
-        self.start_but['state'] = DISABLED
-
     def add_from_text(self):
         self.stop_answer_question()
         lines_text = [el.strip() for el in self.options_txt.get('1.0', END).strip(' \n').split('\n') if el != '']
@@ -209,7 +204,7 @@ class Application:
     def start(self):
         if len(self.list_objects) < 2:
             print("Count of the objects less then 2!")
-        elif not (self.second_name_ent.get() or self.first_name_ent.get() or self.class_combobox.get()):
+        elif not (self.second_name_ent.get() and self.first_name_ent.get() and self.class_combobox.get()):
             print("Enter your first name, second name and choose your class!")
         else:
             print(self.second_name_ent.get(),
@@ -254,6 +249,25 @@ class Application:
         self.option_but1['text'] = self.list_objects[one][0]
         self.option_but2['text'] = self.list_objects[two][0]
 
+    def sort_have_done(self):
+        self.mess_lab['text'] = "Sorting is done!"
+        self.border_for_txt['bg'] = 'green'
+        self.timer = False
+        self.option_but1['state'] = DISABLED
+        self.option_but1['text'] = 'one'
+        self.option_but2['state'] = DISABLED
+        self.option_but2['text'] = 'two'
+        self.list_objects.sort(key=lambda x: x[1], reverse=True)
+        self.options_txt.delete('1.0', END)
+        result = ''.join(['{0:2}. {1}\n'.format(i + 1, el[0]) for i, el in enumerate(self.list_objects)])
+        self.options_txt.insert('1.0', result)
+        time_now = time.strftime("%Y-%m-%d_%H-%M-%S")
+        filename = '{0}_{1}_{2}_{3}.txt'.format(time_now, self.class_combobox.get(), \
+                                                self.second_name_ent.get(), self.first_name_ent.get() )
+        fout = open(filename, 'w')
+        print(result, file=fout)
+        fout.close()
+
     def human_sort(self, winner=None, loser=None):
         if winner is not None and loser is not None:
             self.question_number += 1
@@ -261,17 +275,7 @@ class Application:
             self.list_objects[loser][1] -= 1
             while self.on_level_count() < 2:
                 if self.jump >= len(self.list_objects) * 2 - 1:
-                    self.mess_lab['text'] = "Sorting is done!"
-                    self.border_for_txt['bg'] = 'green'
-                    self.timer = False
-                    self.option_but1['state'] = DISABLED
-                    self.option_but1['text'] = 'one'
-                    self.option_but2['state'] = DISABLED
-                    self.option_but2['text'] = 'two'
-                    self.list_objects.sort(key=lambda x: x[1], reverse=True)
-                    self.options_txt.delete('1.0', END)
-                    self.options_txt.insert('1.0', ''.join([str(i + 1) + '. ' + str(el[0]) + '\n'
-                                                            for i, el in enumerate(self.list_objects)]))
+                    self.sort_have_done()
                     break
                 elif self.direction:
                     if self.level < max(self.list_objects, key=lambda x: x[1])[1]:
@@ -317,6 +321,11 @@ class Application:
             self.list_of_question_count[len(self.list_objects)] - self.question_number)
         if self.timer:
             self.print_list_in_process()
+
+    def clear_text_field(self):
+        self.stop_answer_question()
+        self.options_txt.delete('1.0', END)
+        self.start_but['state'] = DISABLED
 
 if __name__ == '__main__':
     app = Application()
