@@ -29,14 +29,13 @@ class Application:
     def create_widgets(self):
         self.root = Tk()
         self.root.title('Blitz')
-        self.root.geometry('375x460+50+50')
+        self.root.geometry('375x394+50+50')
         self.root.resizable(False, False)
         self.root.configure(background='white')
-        self.fnt1 = ('Consolas', '18')
+        self.fnt1 = ('Consolas', '20')
         self.fnt2 = ('Consolas', '10')
         self.fnt3 = ('Arial', '10')
         self.fnt4 = ('Arial', '12')
-        self.create_frame_choice()
         self.create_frame_view()
         self.create_frame_register()
         self.mess_lab = Label(self.root, font=self.fnt3, bg='black', fg='#00FF00')
@@ -44,22 +43,26 @@ class Application:
         self.mess_lab.place(x=5, y=5, width=365, height=35)
 
     def create_frame_choice(self):
-        self.frame_choice = Frame(self.root, bg='#d7edff', bd=5, height=66, width=365)
-        self.frame_choice.place(x=5, y=44)
-        Label(self.frame_choice, text="or", font=self.fnt1, bg='#d7edff').place(x=160, y=13)
+        self.top_level = Toplevel()
+        self.top_level.title('Answer the question')
+        self.top_level.geometry('400x150+430+50')
+        self.top_level.resizable(width=False, height=False)
+        self.frame_choice = Frame(self.top_level, bg='#d7edff', bd=5, height=140, width=390)
+        self.frame_choice.place(x=5, y=5)
+        Label(self.frame_choice, text="or", font=self.fnt1, bg='#d7edff').place(x=173, y=47)
         # buttons
         self.option_but1 = Button(self.frame_choice, text='one', font=self.fnt1, bd=5, command=self.choose1)
         self.option_but1['state'] = DISABLED
-        self.option_but1.place(x=2, y=1, width=150)
+        self.option_but1.place(x=0, y=1, width=170, height=128)
         self.option_but2 = Button(self.frame_choice, text='two', font=self.fnt1, bd=5, command=self.choose2)
         self.option_but2['state'] = DISABLED
-        self.option_but2.place(x=198, y=1, width=155)
+        self.option_but2.place(x=210, y=1, width=170, height=128)
 
     def create_frame_register(self):
         self.frame_register = Frame(self.root, bg='#d0ffd0', bd=5, height=55, width=365)
-        self.frame_register.place(x=5, y=114)
+        self.frame_register.place(x=5, y=46)
         Label(self.frame_register, font=self.fnt4, bg='#d0ffd0',
-              text='First name:                 Second name:          Class:').place(x=0, y=0)
+              text='First name:{0}Second name:{1}Class:'.format(' '*17, ' '*10)).place(x=0, y=0)
         self.first_name_ent = Entry(self.frame_register, font=self.fnt4, width=13)
         self.first_name_ent.place(x=0, y=22)
         self.first_name_ent.insert(END, 'Вася')
@@ -74,7 +77,7 @@ class Application:
 
     def create_frame_view(self):
         self.frame_view = Frame(self.root, bg='#ffffe0', bd=5, height=280, width=365)
-        self.frame_view.place(x=5, y=174)
+        self.frame_view.place(x=5, y=106)
         # labels
         self.quest_num_lab = Label(self.frame_view, font=self.fnt2, bg='#ffffe0')
         self.quest_num_lab['text'] = "Number of the question: _"
@@ -101,7 +104,7 @@ class Application:
         # buttons
         self.start_but = Button(self.frame_view, text='START', font=self.fnt1, command=self.start)
         self.start_but['state'] = DISABLED
-        self.start_but.place(x=125, y=187, width=229)
+        self.start_but.place(x=125, y=180, width=229)
         self.clear_but = Button(self.frame_view, text="Clear", font=self.fnt2, command=self.clear_text_field)
         self.clear_but.place(x=1, y=243, width=115)
         self.add_from_text_but = Button(self.frame_view, text="Add", font=self.fnt2, command=self.add_from_text)
@@ -168,6 +171,8 @@ class Application:
                 print('File is empty...')
             elif len(lines_file) < 2:
                 print("Count of the elements less then 2...")
+            elif len(lines_file) > 20:
+                print("Count of the elements more then 20...")
             else:
                 list_objects_view = []
                 for subj in lines_file:
@@ -207,6 +212,7 @@ class Application:
         elif not (self.second_name_ent.get() and self.first_name_ent.get() and self.class_combobox.get()):
             print("Enter your first name, second name and choose your class!")
         else:
+            self.create_frame_choice()
             print(self.second_name_ent.get(),
                   self.first_name_ent.get(),
                   self.class_combobox.get())
@@ -250,6 +256,9 @@ class Application:
         self.option_but2['text'] = self.list_objects[two][0]
 
     def sort_have_done(self):
+        self.top_level.destroy()
+        self.question_number -= 1
+        self.quest_num_lab['text'] = "Number of the question: {0}".format(self.question_number)
         self.mess_lab['text'] = "Sorting is done!"
         self.border_for_txt['bg'] = 'green'
         self.timer = False
@@ -269,8 +278,11 @@ class Application:
         fout.close()
 
     def human_sort(self, winner=None, loser=None):
+        self.question_number += 1
+        self.quest_num_lab['text'] = "Number of the question: {0}".format(self.question_number)
+        self.count_quest_lab['text'] = "Left a questions: {0}".format(
+            self.list_of_question_count[len(self.list_objects)]-self.question_number)
         if winner is not None and loser is not None:
-            self.question_number += 1
             self.list_objects[winner][1] += 1
             self.list_objects[loser][1] -= 1
             while self.on_level_count() < 2:
@@ -296,7 +308,6 @@ class Application:
             else:
                 self.find_next_pair()
         else:
-            self.question_number += 1
             self.find_next_pair()
 
     def print_list_in_process(self):
@@ -308,17 +319,11 @@ class Application:
 
     def choose1(self):
         self.human_sort(self.temp_question[0], self.temp_question[1])
-        self.quest_num_lab['text'] = "Number of the question: {0}".format(self.question_number)
-        self.count_quest_lab['text'] = "Left a questions: {0}".format(
-            self.list_of_question_count[len(self.list_objects)]-self.question_number)
         if self.timer:
             self.print_list_in_process()
 
     def choose2(self):
         self.human_sort(self.temp_question[1], self.temp_question[0])
-        self.quest_num_lab['text'] = "Number of the question: {0}".format(self.question_number)
-        self.count_quest_lab['text'] = "Left a questions: {0}".format(
-            self.list_of_question_count[len(self.list_objects)] - self.question_number)
         if self.timer:
             self.print_list_in_process()
 
