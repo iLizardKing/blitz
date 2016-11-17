@@ -51,10 +51,10 @@ class Application:
         self.frame_choice.place(x=5, y=5)
         Label(self.frame_choice, text="or", font=self.fnt1, bg='#d7edff').place(x=173, y=47)
         # buttons
-        self.option_but1 = Button(self.frame_choice, text='one', font=self.fnt1, bd=5, command=self.choose1)
+        self.option_but1 = Button(self.frame_choice, font=self.fnt1, bd=5, command=self.choose1)
         self.option_but1['state'] = DISABLED
         self.option_but1.place(x=0, y=1, width=170, height=128)
-        self.option_but2 = Button(self.frame_choice, text='two', font=self.fnt1, bd=5, command=self.choose2)
+        self.option_but2 = Button(self.frame_choice, font=self.fnt1, bd=5, command=self.choose2)
         self.option_but2['state'] = DISABLED
         self.option_but2.place(x=210, y=1, width=170, height=128)
 
@@ -125,10 +125,6 @@ class Application:
         self.count_quest_lab['text'] = "Left a questions: _"
         self.count_posb_quest_lab['text'] = "Count of possible questions: _"
         self.mess_lab['text'] = "Add subjects to the text field with keyboard or from the file!"
-        self.option_but1['state'] = DISABLED
-        self.option_but1['text'] = 'one'
-        self.option_but2['state'] = DISABLED
-        self.option_but2['text'] = 'two'
 
     def add_from_text(self):
         self.stop_answer_question()
@@ -262,10 +258,6 @@ class Application:
         self.mess_lab['text'] = "Sorting is done!"
         self.border_for_txt['bg'] = 'green'
         self.timer = False
-        self.option_but1['state'] = DISABLED
-        self.option_but1['text'] = 'one'
-        self.option_but2['state'] = DISABLED
-        self.option_but2['text'] = 'two'
         self.list_objects.sort(key=lambda x: x[1], reverse=True)
         self.options_txt.delete('1.0', END)
         result = ''.join(['{0:2}. {1}\n'.format(i + 1, el[0]) for i, el in enumerate(self.list_objects)])
