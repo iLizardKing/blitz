@@ -329,5 +329,5 @@ class Application:
 
 
 if __name__ == '__main__':
-    app = Application()
-    app.root.mainloop()
+    appp = Application()
+    appp.root.mainloop()
