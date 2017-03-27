@@ -327,6 +327,8 @@ class Application:
         self.options_txt.delete('1.0', END)
         self.start_but['state'] = DISABLED
 
+
+
 if __name__ == '__main__':
     app = Application()
     app.root.mainloop()
