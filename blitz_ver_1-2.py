@@ -328,7 +328,6 @@ class Application:
         self.start_but['state'] = DISABLED
 
 
-
 if __name__ == '__main__':
     app = Application()
     app.root.mainloop()
